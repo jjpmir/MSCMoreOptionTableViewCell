@@ -79,6 +79,13 @@
                         // Try to get "Delete" backgroundColor from delegate
                         if ([self.delegate respondsToSelector:@selector(tableView:backgroundColorForDeleteConfirmationButtonForRowAtIndexPath:)]) {
                             UIButton *deleteConfirmationButton = [self deleteButtonFromDeleteConfirmationView:deleteConfirmationView];
+                            if ([self.delegate respondsToSelector:@selector(tableView:titleForDeleteConfirmationButtonForRowAtIndexPath:)]) {
+                                NSString * replacementTitle = [self.delegate tableView:tableView titleForDeleteConfirmationButtonForRowAtIndexPath:[tableView indexPathForCell:self]];
+                                
+                                if ( replacementTitle ) {
+                                    [deleteConfirmationButton setTitle:replacementTitle forState:UIControlStateNormal];
+                                }
+                            }
                             if (deleteConfirmationButton) {
                                 UIColor *deleteButtonColor = [self.delegate tableView:tableView backgroundColorForDeleteConfirmationButtonForRowAtIndexPath:[tableView indexPathForCell:self]];
                                 if (deleteButtonColor) {
@@ -164,7 +171,9 @@
 
 - (void)moreOptionButtonPressed:(id)sender {
     if (self.delegate) {
-        [self.delegate tableView:[self tableView] moreOptionButtonPressedInRowAtIndexPath:[[self tableView] indexPathForCell:self]];
+        if ([self.delegate respondsToSelector:@selector(tableView:moreOptionButtonPressedInRowAtIndexPath:)]) {
+            [self.delegate tableView:[self tableView] moreOptionButtonPressedInRowAtIndexPath:[[self tableView] indexPathForCell:self]];
+        }
     }
 }
 
@@ -185,6 +194,8 @@
     CGFloat priorMoreOptionButtonFrameWidth = self.moreOptionButton.frame.size.width;
     
     [self.moreOptionButton setTitle:title forState:UIControlStateNormal];
+    self.moreOptionButton.titleLabel.lineBreakMode = NSLineBreakByWordWrapping;
+    self.moreOptionButton.titleLabel.textAlignment = NSTextAlignmentCenter;
     [self.moreOptionButton sizeToFit];
     
     CGRect moreOptionButtonFrame = CGRectZero;
